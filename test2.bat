@@ -1,0 +1,1 @@
+for /f %%f in ('dir /b "C:\Users\JacobLeisey-Bartsch\Desktop\Repos\visimo-tf-yolov4/data/video/colanet/"') do if [[ "${f##*.}" =~ ^[a-f] ]] then echo ${f##*.}

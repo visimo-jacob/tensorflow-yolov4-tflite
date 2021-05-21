@@ -1,0 +1,1 @@
+for /f %%f IN ('dir /b /s "C:\Users\JacobLeisey-Bartsch\Desktop\Repos\visimo-tf-yolov4/data/video/missing_train/"'); do python detect_video.py --weights ./checkpoints/custom-416 --size 416 --model yolov4 --video %%f --output .\detections\custom\custom_train_videos\%%~nf.avi done
