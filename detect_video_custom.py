@@ -4,8 +4,8 @@ physical_devices = tf.config.experimental.list_physical_devices('GPU')
 ######################################################################
 # This will turn the GPU off
 ######################################################################
-physical_devices = []
-tf.config.set_visible_devices([], 'GPU')
+# physical_devices = []
+# tf.config.set_visible_devices([], 'GPU')
 ######################################################################
 
 if len(physical_devices) > 0:

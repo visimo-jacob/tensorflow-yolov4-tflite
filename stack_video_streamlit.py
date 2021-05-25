@@ -33,6 +33,25 @@ def detect(input_file, output_file, default=True):
         weights_arg = "--weights ./checkpoints/custom-416"
         os.system(f"python detect_video_custom.py {weights_arg} {size_arg} {model_arg} {vid_arg} {out_arg}")
 
+def estimate_time(file):
+    """
+    Get the clip's duration to estimate detection time and stack time. 
+    """
+
+    # Create an object by passing the location as a string
+    clip = VideoFileClip(file)
+
+    # Get stats
+    clip_duration = int(clip.duration)
+    clip_fps = int(clip.fps)
+    total_frames = clip_fps * clip_duration
+
+    detect_time = 20 + total_frames / 20
+    stack_time = 15 * clip_duration
+
+    return clip_duration, detect_time, stack_time
+
+
 ################################################################################
 # Streamlit Deployment
 # 
@@ -84,7 +103,7 @@ else:
         start_file = f'{upload_folder}/start/{upload_name}'
 
         # Checks and deletes the output file
-        # You cant have a existing file or it will through an error
+        # You cant have a existing file or it will throw an error
         if os.path.isfile(start_file):
             os.remove(start_file)
 
@@ -96,10 +115,23 @@ else:
         custom_output = f"./{upload_folder}/custom/{upload_name_avi}"
         default_output = f"./{upload_folder}/default/{upload_name_avi}"
 
-        detect(input_file, default_output, default=True)
-        detect(input_file, custom_output, default=False)
+        clip_duration, detect_time, stack_time = estimate_time(input_file)
+
+        st.write(
+            f'Your clip is {clip_duration} seconds long. Expect results in ' +\
+            f'approximately {2 * detect_time + stack_time} seconds.'
+        )
+
+        with st.spinner(text='Detecting with default YOLO weights...'):
+            detect(input_file, default_output, default=True)
+
+        with st.spinner(text='Detecting with custom YOLO weights...'):
+            detect(input_file, custom_output, default=False)
     
-        stack(default_output, custom_output, f"{upload_folder}/{upload_name_base}.mp4")
+        with st.spinner(text='Stacking the two videos for easy comparison...'):
+            stack(default_output, custom_output, f"{upload_folder}/{upload_name_base}.mp4")
+
+        st.balloons()
 
     video_file = open(f"{upload_folder}/{upload_name_base}.mp4", 'rb')
 
